@@ -9,9 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Spacebear is ERC721, ERC721URIStorage, Ownable {
     uint256 private _nextTokenId;
 
-    constructor(
-        address initialOwner
-    ) ERC721("Spacebear", "SBR") Ownable(initialOwner) {}
+    constructor() ERC721("Spacebear", "SBR") {}
 
     function _baseURI() internal pure override returns (string memory) {
         return
@@ -24,17 +22,23 @@ contract Spacebear is ERC721, ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, uri);
     }
 
+    // Override the supportsInterface function to resolve the conflict.
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, ERC721URIStorage) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
     // The following functions are overrides required by Solidity.
+    function _burn(
+        uint256 tokenId
+    ) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
+    }
 
     function tokenURI(
         uint256 tokenId
     ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC721, ERC721URIStorage) returns (bool) {
-        return super.supportsInterface(interfaceId);
     }
 }
