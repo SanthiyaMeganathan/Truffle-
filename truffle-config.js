@@ -1,3 +1,5 @@
+// const ethereum = require("./ethereum");
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -44,9 +46,18 @@
 // require('dotenv').config();
 // const { MNEMONIC, PROJECT_ID } = process.env;
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+const fs = require("fs");
+const mnenomicPhrase = fs.readFileSync(".secret").toString().trim();
+const infuraProjectId = fs.readFileSync(".infura").toString().trim();
 
 module.exports = {
+  eth_block_tracker: {
+    pollingInterval: 10000, // 10 seconds
+  },
+  wallet: {
+    provider: () => new Web3.providers.HttpProvider("http://localhost:8545"),
+  },
   /**
    * Networks define how you connect to your ethereum client and let you set the
    * defaults web3 uses to send transactions. If you don't specify one truffle
@@ -58,27 +69,27 @@ module.exports = {
    */
 
   networks: {
-    ganache: {
-      networkCheckTimeout: 1000000,
-      host: "172.24.80.1", // Localhost (default: none)
-      port: 7545, // Standard Ethereum port (default: none)
-      network_id: "*", // Any network (default: none)
-    },
     // ganache: {
+    //   networkCheckTimeout: 1000000,
     //   host: "172.24.80.1", // Localhost (default: none)
     //   port: 7545, // Standard Ethereum port (default: none)
     //   network_id: "*", // Any network (default: none)
     // },
+    ganache: {
+      host: "172.24.80.1", // Localhost (default: none)
+      port: 7545, // Standard Ethereum port (default: none)
+      network_id: "*", // Any network (default: none)
+    },
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
     // You should run a client (like ganache, geth, or parity) in a separate terminal
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
-    // development: {
-    //   host: "127.0.0.1", // Localhost (default: none)
-    //   port: 8545, // Standard Ethereum port (default: none)
-    //   network_id: "*", // Any network (default: none)
-    // },
+    development: {
+      host: "127.0.0.1", // Localhost (default: none)
+      port: 8545, // Standard Ethereum port (default: none)
+      network_id: "*", // Any network (default: none)
+    },
     // development: {
     //   host: "172.24.80.1",
     //   port: 7545,
@@ -96,12 +107,28 @@ module.exports = {
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
     // goerli: {
-    //   provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
-    //   network_id: 5,       // Goerli's id
-    //   confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
-    //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    //   provider: () =>
+    //     new HDWalletProvider(
+    //       mnenomicPhrase,
+    //       `https://sepolia.infura.io/v3/${infuraProjectId}`
+    //     ),
+    //   network_id: 5, // Goerli's id
+    //   confirmations: 2, // # of confirmations to wait between deployments. (default: 0)
+    //   timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
+    //   skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
     // },
+
+    sepolia: {
+      provider: () =>
+        new HDWalletProvider(
+          mnenomicPhrase,
+          `https://sepolia.infura.io/v3/${infuraProjectId}`
+        ),
+      network_id: 11155111, // Sepolia's network id
+      confirmations: 2, // # of confirmations to wait between deployments. (default: 0)
+      timeoutBlocks: 200, // # of blocks before a deployment times out (minimum/default: 50)
+      skipDryRun: true, // Skip dry run before migrations? (default: false for public nets)
+    },
     // Useful for private networks
     // private: {
     //   provider: () => new HDWalletProvider(MNEMONIC, `https://network.io`),
